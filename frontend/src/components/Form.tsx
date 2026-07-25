@@ -2,8 +2,12 @@ import React from "react";
 import InputField from "./InputField";
 
 function Form() {
-  function handleFormSubmit(data: FormData) {
-    console.log(data);
+  async function handleFormSubmit(data: FormData) {
+    await fetch("http://localhost:3000/api/movies", {
+      method: "POST",
+      headers: { "Content-Type": "application/JSON" },
+      body: JSON.stringify(Object.fromEntries(data)),
+    });
   }
   return (
     <form action={handleFormSubmit}>
