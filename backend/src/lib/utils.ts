@@ -6,3 +6,12 @@ export function getEmbedModel() {
   }
   return embedModel;
 }
+
+export function getAIModel() {
+  const aiModel = process.env.AI_MODEL;
+  if (!aiModel) {
+    console.error("missing embed model");
+    throw Error("missing embed model");
+  }
+  return aiModel;
+}
