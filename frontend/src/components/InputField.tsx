@@ -1,4 +1,5 @@
 import React from "react";
+import { useFormStatus } from "react-dom";
 
 function InputField({
   label,
@@ -11,6 +12,8 @@ function InputField({
   name: string;
   radioOptions?: string[];
 }) {
+  const { pending } = useFormStatus();
+
   return (
     <div className="input-field">
       <label htmlFor={name} className="label-text">
@@ -20,7 +23,14 @@ function InputField({
         <div className="radio-buttons">
           {radioOptions.map((option, index) => (
             <div key={index} className="radio-button">
-              <input name={name} id={`${name}-${index}`} type="radio" value={option} />
+              <input
+                name={name}
+                id={`${name}-${index}`}
+                type="radio"
+                value={option}
+                required
+                disabled={pending}
+              />
               <label htmlFor={`${name}-${index}`} className="label-text capitalize radio-label">
                 {option}
               </label>
@@ -28,7 +38,14 @@ function InputField({
           ))}
         </div>
       ) : (
-        <textarea name={name} id={name} placeholder={placeholder} className="text-input"></textarea>
+        <textarea
+          name={name}
+          id={name}
+          placeholder={placeholder}
+          className="text-input"
+          required
+          readOnly={pending}
+        ></textarea>
       )}
     </div>
   );

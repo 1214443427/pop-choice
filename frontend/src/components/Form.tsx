@@ -1,37 +1,45 @@
-import React from "react";
 import InputField from "./InputField";
+import type { FormState } from "../App";
 
-function Form() {
-  async function handleFormSubmit(data: FormData) {
-    await fetch("http://localhost:3000/api/movies", {
-      method: "POST",
-      headers: { "Content-Type": "application/JSON" },
-      body: JSON.stringify(Object.fromEntries(data)),
-    });
-  }
+function Form({
+  state,
+  formAction,
+  isPending,
+}: {
+  state: FormState;
+  formAction: (payload: FormData) => void;
+  isPending: boolean;
+}) {
   return (
-    <form action={handleFormSubmit}>
-      <InputField
-        label="What’s your favorite movie and why?"
-        placeholder="Describe your favorite movie..."
-        name="favoriteMovie"
-      />
-      <InputField
-        label="Are you in the mood for something new or a classic?"
-        name="period"
-        radioOptions={["new", "classic"]}
-      />
-      <InputField
-        label="What are you in the mood for?"
-        name="mood"
-        radioOptions={["fun", "serious", "inspiring", "scary"]}
-      />
-      <InputField
-        label="Which famous film person would you love to be stranded on an island with and why?"
-        placeholder="Maybe your favorite actor..."
-        name="islandPerson"
-      />
-      <button className="form-button">Get Movie</button>
+    <form action={formAction}>
+      {state.phase === "question" && (
+        <>
+          <InputField
+            label="What’s your favorite movie and why?"
+            placeholder="Describe your favorite movie..."
+            name="favoriteMovie"
+          />
+          <InputField
+            label="Are you in the mood for something new or a classic?"
+            name="period"
+            radioOptions={["new", "classic"]}
+          />
+          <InputField
+            label="What are you in the mood for?"
+            name="mood"
+            radioOptions={["fun", "serious", "inspiring", "scary"]}
+          />
+          <InputField
+            label="Which famous film person would you love to be stranded on an island with and why?"
+            placeholder="Maybe your favorite actor..."
+            name="islandPerson"
+          />
+        </>
+      )}
+
+      <button className="form-button" disabled={isPending}>
+        {state.phase === "question" ? "Get Movie" : "Go Again "}
+      </button>
     </form>
   );
 }

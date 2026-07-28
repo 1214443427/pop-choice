@@ -4,3 +4,9 @@ export interface MovieFormData {
   mood: "fun" | "serious" | "inspiring" | "scary";
   islandPerson: string;
 }
+
+export interface MovieData {
+  title: string;
+  poster: string;
+  description: string;
+}
