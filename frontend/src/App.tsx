@@ -34,21 +34,7 @@ function App() {
           headers: { "Content-Type": "application/JSON" },
           body: JSON.stringify(Object.fromEntries(data)),
         });
-        if (result.ok) {
-          const movie = (await result.json()) as MovieData;
-
-          // const movie = {
-          //   title: "The Martian",
-          //   poster: "",
-          //   description:
-          //     "The inspiring story of an astronaut stranded on Mars who needs to rely on his ingenuity to come back to Earth",
-          // };
-          return {
-            phase: "result",
-            success: true,
-            movieRecommendation: movie,
-          };
-        } else {
+        if (!result.ok) {
           const error = (await result.json()) as { message: string };
           return {
             phase: "result",
@@ -59,6 +45,29 @@ function App() {
             },
           };
         }
+        const movie = (await result.json()) as MovieData;
+        // const movie = {
+        //   title: "The Martian",
+        //   poster: "",
+        //   description:
+        //     "The inspiring story of an astronaut stranded on Mars who needs to rely on his ingenuity to come back to Earth",
+        // };
+        if (!movie) {
+          return {
+            phase: "result",
+            success: false,
+            error: {
+              code: 400,
+              message: "Sorry, we couldn't recommend a movie for you.",
+            },
+          };
+        }
+
+        return {
+          phase: "result",
+          success: true,
+          movieRecommendation: movie,
+        };
       } catch (error) {
         return {
           phase: "result",

@@ -5,8 +5,9 @@ export interface MovieFormData {
   islandPerson: string;
 }
 
-export interface MovieData {
+export interface MovieResponseData {
   title: string;
-  poster: string;
+  year?: number | undefined;
+  poster?: string | undefined;
   description: string;
 }
