@@ -3,20 +3,21 @@ import express from "express";
 import cors from "cors";
 import type { MovieFormData, MovieResponseData } from "@shared/type.js";
 import { openai, supabase } from "./config.js";
-import { getAIModel, getEmbedModel } from "./lib/utils.js";
+import { getAIModel, getEmbedModel, getInitialPrompts, getUserPrompt } from "./lib/utils.js";
 import * as z from "zod";
 import { zodResponseFormat } from "openai/helpers/zod.js";
 
-type Role = "user" | "assistant" | "system" | "developer";
-interface Message {
-  role: Role;
-  content: string;
-}
-
 const MovieDetails = z.object({
   title: z.string(),
-  year: z.number().optional(),
+  year: z.number().optional().nullable(),
   description: z.string(),
+});
+
+const RootResponseSchema = z.object({
+  movieTitles: z.array(z.string()).describe("Every movie title found in the input, listed first."), //Used to force LLM to enumerate for multiple entries.
+  items: z
+    .array(MovieDetails)
+    .describe("A list of movie objects. Each object must represent an entry from the movie list."),
 });
 
 export type MovieDetails = z.infer<typeof MovieDetails>;
@@ -58,120 +59,72 @@ async function fetchPoster(movie: MovieDetails) {
   }
 }
 
+async function getDocumentsFromDB(userPrompt: string) {
+  const result = await openai.embeddings.create({
+    model: getEmbedModel(),
+    input: userPrompt,
+  });
+  console.log("Embed finished.", result.data[0]?.embedding, "Fetching from supabase");
+  const { data, error } = await supabase.rpc("match_documents", {
+    query_embedding: result.data[0]?.embedding,
+    match_threshold: 0.25,
+    match_count: 3,
+  });
+  return { data, error };
+}
+
 app.post(
   "/api/movies",
   async (
     req: Request<any, any, MovieFormData>,
-    res: Response<MovieResponseData[] | { message: string }>,
+    res: Response<MovieResponseData | { message: string }>,
   ) => {
-    const { favoriteMovie, period, mood, islandPerson } = req.body;
+    const userPrompt = getUserPrompt(req);
+    const messages = getInitialPrompts();
     try {
-      const userPrompt = `I am looking for something ${period}.\n It should be ${mood}.\n ${favoriteMovie}\n ${islandPerson}`;
       console.log("generating embedding");
-      const result = await openai.embeddings.create({
-        model: getEmbedModel(),
-        input: userPrompt,
-      });
-      console.log("Embed finished.", result.data[0]?.embedding, "Fetching from supabase");
-      const { data, error } = await supabase.rpc("match_documents", {
-        query_embedding: result.data[0]?.embedding,
-        match_threshold: 0.25,
-        match_count: 3,
-      });
+      const { data, error } = await getDocumentsFromDB(userPrompt);
+
       if (error) {
         console.error("supabase error", error);
-        res.status(500).json({ message: "Internal DB error" });
-      } else {
-        const messages: Message[] = [
-          {
-            role: "system",
-            content:
-              "You are a helpful AI that gives the user a reason to watch a movie provided by our services. Your user prompt will consists of the user's favorite movies, favorite actors, their mood for movie type, and most importantly, our list of available movies, filtered based on the user's interest. You must only recommend movies from our list. If the list is empty, suggest our latests release: Toy Story 5 released in 2026. Inform the user that we don't have any recommendations for now and try this new release in the description. If the list is not empty, generate a short description (around 40 words) for the movie, and emphasis on the part that the user might be interested in. The description must be based on our list. ",
-          },
-          {
-            role: "user",
-            content: `I am looking for something classic.\nIt should be fun.\nMy favorite movie is the grand budapest hotel. I like the humorous nature with a hint of history. \nMy favorite actor is the guy from Batman. ---LIST:  Jojo Rabbit (2019) Jojo is a lonely German boy who discovers that his single mother is hiding a Jewish girl in their attic. Aided only by his imaginary friend -- Adolf Hitler -- Jojo must confront his blind nationalism as World War II continues to rage on. |||  Green Book (2018)  Dr. Don Shirley is a world-class African-American pianist who's about to embark on a concert tour in the Deep South in 1962. In need of a driver and protection, Shirley recruits Tony Lip, a tough-talking bouncer from an Italian-American neighborhood in the Bronx. Despite their differences, the two men soon develop an unexpected bond while confronting racism and danger in an era of segregation. |||  American Hustle(2013) Irving Rosenfeld (Christian Bale) dabbles in forgery and loan-sharking, but when he falls for fellow grifter Sydney Prosser (Amy Adams), things change in a big way. Caught red-handed by FBI agent Richie DiMaso (Bradley Cooper), Irv and Sydney are forced to work undercover as part of DiMaso's sting operation to nail a New Jersey mayor (Jeremy Renner). Meanwhile, Irv's jealous wife (Jennifer Lawrence) may be the one to bring everyone's world crashing down. Based on the 1970s Abscam case. `,
-          },
-          {
-            role: "assistant",
-            content: JSON.stringify({
-              movies: [
-                {
-                  title: "Jojo Rabbit",
-                  year: 2019,
-                  description:
-                    "A lonely German boy in the last days of WWII takes life advice from his " +
-                    "imaginary friend — a buffoonish Adolf Hitler — until the Jewish girl " +
-                    "hidden in his attic starts dismantling everything he's been taught. ",
-                },
-                {
-                  title: "Green Book (2018)",
-                  year: 2018,
-                  description:
-                    "A 1962 road trip through the segregated South, built on the odd-couple " +
-                    "chemistry between a refined Black concert pianist and the brash Bronx " +
-                    "bouncer he hires to drive him. Warm, funny, and grounded in a " +
-                    "real friendship.",
-                },
-                {
-                  title: "American Hustle",
-                  year: 2013,
-                  description:
-                    "Christian Bale — your Batman — disappears completely into a paunchy, " +
-                    "combover-sporting con artist, and he's clearly having the time of his " +
-                    "life. He and his partner get squeezed by the FBI into a sting on a New " +
-                    "Jersey mayor, and everyone's scheming against everyone else.",
-                },
-              ],
-            }),
-          },
-          {
-            role: "user",
-            content: `I am looking for something classic.\nIt should be serious.\n My favorite movie is the one with an astronaut and spaceship.\n My favorite actor is Jeff ---LIST: `,
-          },
-          {
-            role: "assistant",
-            content: JSON.stringify({
-              movies: [
-                {
-                  title: "Toy Story 5",
-                  year: 2026,
-                  description:
-                    "I can't find anything, but you should definitely check out our latest addition! ",
-                },
-              ],
-            }),
-          },
-        ];
-        const movieList: string[] = data.map((movie: { content: string }) => movie.content);
-        console.log("fetched movie data:", movieList, data);
-        messages.push({
-          role: "user",
-          content: `${userPrompt} ---LIST: ${movieList.join(" ||| ")}`,
-        });
-
-        const response = await openai.chat.completions.parse({
-          model: getAIModel(),
-          messages: messages,
-          response_format: zodResponseFormat(z.array(MovieDetails), "movies"),
-        });
-        console.log(response);
-        const choice = response.choices[0];
-        if (!choice) {
-          return res.status(400).json({ message: "Sorry, we couldn't recommend a movie for you." });
-        }
-        if (choice.message.refusal) {
-          return res.status(400).json({ message: choice.message.refusal });
-        }
-        const movies = choice.message.parsed as MovieDetails[];
-        const moviesWithPosters: MovieResponseData[] = await Promise.all(
-          movies.map(async (movie) => ({
-            ...movie,
-            poster: await fetchPoster(movie),
-          })),
-        );
-        res.status(200).json(moviesWithPosters);
+        return res.status(500).json({ message: "Internal DB error" });
       }
+
+      const movieList: string[] = data
+        .map((movie: { content: string }) => movie.content)
+        .join(" ||| ");
+
+      console.log("fetched movie data:", movieList);
+
+      messages.push({
+        role: "user",
+        content: `${userPrompt} ---LIST: ${movieList}`,
+      });
+
+      const response = await openai.chat.completions.create({
+        model: getAIModel(),
+        messages: messages,
+        response_format: zodResponseFormat(RootResponseSchema, "movies"),
+      });
+      const choice = response.choices[0];
+      if (!choice) {
+        return res.status(400).json({ message: "Sorry, we couldn't recommend a movie for you." });
+      }
+      if (choice.message.refusal) {
+        return res.status(400).json({ message: choice.message.refusal });
+      }
+      if (!choice.message.content) {
+        return res.status(400).json({ message: "Sorry, we couldn't recommend a movie for you." });
+      }
+      const movies = JSON.parse(choice.message.content).movies as MovieDetails[];
+      console.log(movies);
+      const moviesWithPosters: MovieResponseData = await Promise.all(
+        movies.map(async (movie) => ({
+          ...movie,
+          poster: await fetchPoster(movie),
+        })),
+      );
+      res.status(200).json(moviesWithPosters);
     } catch (error) {
       console.log(error);
       res.status(400).json({ message: "Sorry, there was an issue with our server. " });
@@ -215,3 +168,10 @@ The json schema that was replaced by zod.
 
 
 */
+
+//Movie List used to test LLM without fetching from DB.
+// const movieList = [
+//   "Title: Avatar: The Way of the Water, Release Year: 2022, Content: Avatar: The Way of Water (3 hr 10 min): Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. Once a familiar threat returns to finish what was previously started, Jake must work with Neytiri and the army of the Na'vi race to protect their home. Action, Adventure, Fantasy film released in 2022. Directed by James Cameron Written by James Cameron, Rick Jaffa and Amanda Silver. Starring Sam Worthington, Zoe Saldana and Sigourney Weaver. Rated 7.6 on IMDB",
+//   "Title: Spider-Man: Across the Spider-Verse, Release Year: 2023, Content: Spider-Man: Across the Spider-Verse (2 hr 20 min): Miles Morales catapults across the Multiverse, where he encounters a team of Spider-People charged with protecting its very existence. When the heroes clash on how to handle a new threat, Miles must redefine what it means to be a hero. Animation, Action, Adventure film released in 2023. Directed by Joaquim Dos Santos, Kemp Powers an Justin K. Thompson. Written by Phil Lord, Christopher Miller and Dave Callaham. Starring: Shameik Moore, Hailee Steinfeld and Brian Tyree Henry. Rated 8.7 on IMDB",
+//   "The Super Mario Bros. Movie: 2023 | PG | 1h 32m | 7.1 rating --- Synopsis: 'The Super Mario Bros. Movie': While working underground to fix a water main, Brooklyn plumbers and brothers Mario and Luigi are transported through a mysterious pipe to a magical new world. But when the siblings are separated, an epic adventure begins to save a captured princess. The Super Mario Bros. Movie is an animated adventure comedy directed by Aaron Horvath, Michael Jelenic and Pierre Leduc. It's voiced by the actors Chris Pratt, Anya Taylor-Joy and Charlie Day.",
+// ];
