@@ -38,7 +38,11 @@ function Form({
       )}
 
       <button className="form-button" disabled={isPending}>
-        {state.phase === "question" ? "Get Movie" : "Go Again "}
+        {state.phase === "question"
+          ? "Get Movie"
+          : state.success && state.recommendationIndex < state.movieRecommendations.length - 1
+            ? "Next Movie"
+            : "Go Again"}
       </button>
     </form>
   );

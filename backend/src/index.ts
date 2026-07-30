@@ -39,10 +39,11 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+//fetches poster of a movie from TMDB.
 async function fetchPoster(movie: MovieDetails) {
   try {
     const response = await fetch(
-      `${TMDB_URL}query=${movie.title}${movie.year ? `&year=${movie.year}` : ""}`,
+      `${TMDB_URL}query=${movie.title}${movie.year ? `&primary_release_year=${movie.year}` : ""}`,
       TMDB_OPTIONS,
     );
     const movieFullDetail = (await response.json()) as { results: { poster_path?: string }[] };
@@ -67,7 +68,7 @@ async function getDocumentsFromDB(userPrompt: string) {
   console.log("Embed finished.", result.data[0]?.embedding, "Fetching from supabase");
   const { data, error } = await supabase.rpc("match_documents", {
     query_embedding: result.data[0]?.embedding,
-    match_threshold: 0.25,
+    match_threshold: 0.35,
     match_count: 3,
   });
   return { data, error };
@@ -79,23 +80,26 @@ app.post(
     req: Request<any, any, MovieFormData>,
     res: Response<MovieResponseData | { message: string }>,
   ) => {
+    // Create a user prompt based on the information from the request. It consists of the user's favorite movie, preference for classic/new movies, the type of movie they are in the mood for, and their favorite actor.
     const userPrompt = getUserPrompt(req);
-    const messages = getInitialPrompts();
-    try {
-      console.log("generating embedding");
-      const { data, error } = await getDocumentsFromDB(userPrompt);
 
+    //Initialize a messages array with a system prompt, and 2 few-shot examples.
+    const messages = getInitialPrompts();
+
+    try {
+      // Creates embedding of the user's prompt and fetch matches from the DB using the embeddings.
+      const { data, error } = await getDocumentsFromDB(userPrompt);
       if (error) {
         console.error("supabase error", error);
         return res.status(500).json({ message: "Internal DB error" });
       }
 
+      // Extract the text content from the fetched array and join them into a single string, separated by `|||`
       const movieList: string[] = data
         .map((movie: { content: string }) => movie.content)
         .join(" ||| ");
 
-      console.log("fetched movie data:", movieList);
-
+      // Add user's prompt and the fetched list of movies to the messages array
       messages.push({
         role: "user",
         content: `${userPrompt} ---LIST: ${movieList}`,
@@ -107,6 +111,7 @@ app.post(
         response_format: zodResponseFormat(RootResponseSchema, "movies"),
       });
       const choice = response.choices[0];
+
       if (!choice) {
         return res.status(400).json({ message: "Sorry, we couldn't recommend a movie for you." });
       }
@@ -116,8 +121,9 @@ app.post(
       if (!choice.message.content) {
         return res.status(400).json({ message: "Sorry, we couldn't recommend a movie for you." });
       }
+
       const movies = JSON.parse(choice.message.content).movies as MovieDetails[];
-      console.log(movies);
+
       const moviesWithPosters: MovieResponseData = await Promise.all(
         movies.map(async (movie) => ({
           ...movie,

@@ -3,13 +3,14 @@ import hero from "./assets/hero.png";
 import spinner from "./assets/spinner.svg";
 import "./App.css";
 import Form from "./components/Form";
-import type { MovieData } from "@shared/type";
+import type { MovieResponseData } from "@shared/type";
 
 export type FormState =
   | {
       phase: "result";
       success: true;
-      movieRecommendation: MovieData;
+      movieRecommendations: MovieResponseData;
+      recommendationIndex: number;
     }
   | {
       phase: "result";
@@ -26,7 +27,6 @@ export type FormState =
 function App() {
   const [state, formAction, isPending] = useActionState(handleFormSubmit, { phase: "question" });
   async function handleFormSubmit(prevState: FormState, data: FormData): Promise<FormState> {
-    console.log(prevState);
     if (prevState.phase === "question") {
       try {
         const result = await fetch("http://localhost:3000/api/movies", {
@@ -45,20 +45,20 @@ function App() {
             },
           };
         }
-        const movie = (await result.json()) as MovieData;
+        const movies = (await result.json()) as MovieResponseData;
         // const movie = {
         //   title: "The Martian",
-        //   poster: "",
+        //   poster: "https://image.tmdb.org/t/p/w500/u8u3KVq0qfJYmNDsaTVOXy4So6f.jpg",
         //   description:
         //     "The inspiring story of an astronaut stranded on Mars who needs to rely on his ingenuity to come back to Earth",
         // };
-        if (!movie) {
+        if (!movies) {
           return {
             phase: "result",
             success: false,
             error: {
               code: 400,
-              message: "Sorry, we couldn't recommend a movie for you.",
+              message: "Sorry, we couldn't recommend any movie for you.",
             },
           };
         }
@@ -66,7 +66,8 @@ function App() {
         return {
           phase: "result",
           success: true,
-          movieRecommendation: movie,
+          movieRecommendations: movies,
+          recommendationIndex: 0,
         };
       } catch (error) {
         return {
@@ -79,8 +80,17 @@ function App() {
         };
       }
     } else {
+      if (
+        !prevState.success ||
+        prevState.movieRecommendations.length - 1 <= prevState.recommendationIndex
+      ) {
+        return {
+          phase: "question",
+        };
+      }
       return {
-        phase: "question",
+        ...prevState,
+        recommendationIndex: (prevState.recommendationIndex += 1),
       };
     }
   }
@@ -94,9 +104,18 @@ function App() {
           </div>
         ) : state.success ? (
           <section className="movie-section">
-            <h2 className="movie-title">{state.movieRecommendation.title}</h2>
-            <img className="movie-image" src={state.movieRecommendation.poster} />
-            <p className="movie-description">{state.movieRecommendation.description}</p>
+            <h2 className="movie-title">
+              {state.movieRecommendations[state.recommendationIndex].title}
+              {state.movieRecommendations[state.recommendationIndex].year &&
+                ` (${state.movieRecommendations[state.recommendationIndex].year})`}
+            </h2>
+            <img
+              className="movie-image"
+              src={state.movieRecommendations[state.recommendationIndex].poster ?? hero}
+            />
+            <p className="movie-description">
+              {state.movieRecommendations[state.recommendationIndex].description}
+            </p>
           </section>
         ) : (
           <div className="error-page">
