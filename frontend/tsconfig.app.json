@@ -8,8 +8,8 @@
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
     "paths": {
-      "@shared/*": ["../shared/*"],
-      "@backend/*": ["../backend/*"]
+      "@shared/*": ["../shared/*"]
+      // "@backend/*": ["../backend/*"]
     },
 
     /* Bundler mode */

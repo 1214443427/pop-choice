@@ -59,6 +59,9 @@ form {
   padding: 10px;
   border: 0px;
   width: 100%;
+}
+
+textarea.text-input {
   min-height: 40px;
   resize: none;
 }
@@ -90,6 +93,16 @@ input[type="radio"] {
 input[type="radio"]:checked {
   background-color: #007bff;
   border-color: #007bff;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
 }
 
 .radio-button {
@@ -180,4 +193,11 @@ input[type="radio"]:checked {
 
 .error-page p {
   font-size: 1.5rem;
+}
+
+fieldset {
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }

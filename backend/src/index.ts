@@ -80,6 +80,7 @@ app.post(
     req: Request<any, any, MovieFormData>,
     res: Response<MovieResponseData | { message: string }>,
   ) => {
+    return res.status(400).json({ message: "Currently down for maintenance." });
     // Create a user prompt based on the information from the request. It consists of the user's favorite movie, preference for classic/new movies, the type of movie they are in the mood for, and their favorite actor.
     const userPrompt = getUserPrompt(req);
 
