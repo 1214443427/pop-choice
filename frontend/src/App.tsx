@@ -1,4 +1,4 @@
-import React, { useActionState } from "react";
+import { useActionState } from "react";
 import hero from "./assets/hero.png";
 import spinner from "./assets/spinner.svg";
 import "./App.css";
@@ -6,6 +6,7 @@ import Form from "./components/Form";
 import type { FormState } from "./Type";
 import { APIError, fetchMovies } from "./api/movies";
 import type { MovieFormData, PersonFormData } from "@shared/type";
+import { clampMaxPeople } from "@shared/utils";
 
 type QuestionStates = Extract<FormState, { phase: "question" }>;
 
@@ -70,7 +71,7 @@ function App() {
         step: "person",
         formData: {
           startData: {
-            peopleCount: Math.floor(Number(data.get("people"))) || 1,
+            peopleCount: clampMaxPeople(Number(data.get("people"))) || 1,
             timeAvailable: String(data.get("time")),
           },
           personData: [],
@@ -78,17 +79,18 @@ function App() {
         page: 1,
       };
     }
+    const newFormData = {
+      ...state.formData,
+      personData: [...state.formData.personData, Object.fromEntries(data) as PersonFormData],
+    };
     if (state.formData.startData.peopleCount > state.page) {
       return {
         ...state,
-        formData: {
-          ...state.formData,
-          personData: [...state.formData.personData, Object.fromEntries(data) as PersonFormData],
-        },
+        formData: newFormData,
         page: state.page + 1,
       };
     }
-    return await requestMovieRecommendations(state.formData);
+    return await requestMovieRecommendations(newFormData);
   }
 
   async function handleFormSubmit(prevState: FormState, data: FormData): Promise<FormState> {

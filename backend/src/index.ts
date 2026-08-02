@@ -15,7 +15,7 @@ const MovieDetails = z.object({
 
 const RootResponseSchema = z.object({
   movieTitles: z.array(z.string()).describe("Every movie title found in the input, listed first."), //Used to force LLM to enumerate for multiple entries.
-  items: z
+  movies: z
     .array(MovieDetails)
     .describe("A list of movie objects. Each object must represent an entry from the movie list."),
 });
@@ -42,10 +42,8 @@ app.use(cors(corsOptions));
 //fetches poster of a movie from TMDB.
 async function fetchPoster(movie: MovieDetails) {
   try {
-    const response = await fetch(
-      `${TMDB_URL}query=${movie.title}${movie.year ? `&primary_release_year=${movie.year}` : ""}`,
-      TMDB_OPTIONS,
-    );
+    const fullURL = `${TMDB_URL}query=${movie.title}${movie.year ? `&primary_release_year=${movie.year}` : ""}`;
+    const response = await fetch(encodeURI(fullURL), TMDB_OPTIONS);
     const movieFullDetail = (await response.json()) as { results: { poster_path?: string }[] };
     const baseURL = "https://image.tmdb.org/t/p/w500";
     console.log(movieFullDetail);
@@ -68,7 +66,7 @@ async function getDocumentsFromDB(userPrompt: string) {
   console.log("Embed finished.", result.data[0]?.embedding, "Fetching from supabase");
   const { data, error } = await supabase.rpc("match_documents", {
     query_embedding: result.data[0]?.embedding,
-    match_threshold: 0.35,
+    match_threshold: 0.3,
     match_count: 3,
   });
   return { data, error };
@@ -80,7 +78,9 @@ app.post(
     req: Request<any, any, MovieFormData>,
     res: Response<MovieResponseData | { message: string }>,
   ) => {
-    return res.status(400).json({ message: "Currently down for maintenance." });
+    // console.log(req.body);
+
+    // return res.status(400).json({ message: "Currently down for maintenance." });
     // Create a user prompt based on the information from the request. It consists of the user's favorite movie, preference for classic/new movies, the type of movie they are in the mood for, and their favorite actor.
     const userPrompt = getUserPrompt(req);
 
@@ -96,7 +96,7 @@ app.post(
       }
 
       // Extract the text content from the fetched array and join them into a single string, separated by `|||`
-      const movieList: string[] = data
+      const movieList: string = data
         .map((movie: { content: string }) => movie.content)
         .join(" ||| ");
 
@@ -111,7 +111,10 @@ app.post(
         messages: messages,
         response_format: zodResponseFormat(RootResponseSchema, "movies"),
       });
+
       const choice = response.choices[0];
+
+      console.log(choice);
 
       if (!choice) {
         return res.status(400).json({ message: "Sorry, we couldn't recommend a movie for you." });

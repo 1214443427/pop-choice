@@ -54,7 +54,7 @@ async function seedFromMovies() {
 
   const chunksArray = await Promise.all(promiseArray);
 
-  chunksArray.flat().forEach(async (chunk) => {
+  const seedPromises = chunksArray.flat().map(async (chunk) => {
     console.log("embedding", chunk);
     const result = await openai.embeddings.create({
       model: embedModel,
@@ -71,6 +71,7 @@ async function seedFromMovies() {
       console.log("success embedded");
     }
   });
+  await Promise.all(seedPromises);
   console.log("DB seeded!");
 }
 
