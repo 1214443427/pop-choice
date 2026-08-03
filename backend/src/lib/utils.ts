@@ -1,5 +1,6 @@
-import type { MovieFormData } from "@shared/type.js";
+import { MovieFormSchema, type MovieFormData } from "@shared/type.js";
 import type { Request } from "express";
+import * as z from "zod";
 
 export function getEmbedModel() {
   const embedModel = process.env.AI_EMBED_MODEL;
@@ -89,7 +90,12 @@ export function getInitialPrompts(): Message[] {
 }
 
 export function getUserPrompt(req: Request<any, any, MovieFormData>): string {
-  const { startData, personData } = req.body;
+  const parsedData = MovieFormSchema.safeParse(req.body);
+  console.log(parsedData);
+  if (parsedData.success === false) {
+    throw new Error("Client sent malformed data.");
+  }
+  const { startData, personData } = parsedData.data;
   let userPrompt = `This request came from a ${startData.peopleCount} person group. Their planned watch time is: ${startData.timeAvailable}. `;
   personData.forEach((person, index) => {
     const { period, mood, favoriteMovie, islandPerson } = person;

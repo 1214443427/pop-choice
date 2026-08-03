@@ -80,13 +80,19 @@ app.post(
   ) => {
     // console.log(req.body);
 
-    // return res.status(400).json({ message: "Currently down for maintenance." });
     // Create a user prompt based on the information from the request. It consists of the user's favorite movie, preference for classic/new movies, the type of movie they are in the mood for, and their favorite actor.
-    const userPrompt = getUserPrompt(req);
+    let userPrompt;
+    try {
+      userPrompt = getUserPrompt(req);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Error parsing sent data.";
+      return res.status(400).json({ message });
+    }
 
     //Initialize a messages array with a system prompt, and 2 few-shot examples.
     const messages = getInitialPrompts();
 
+    // return res.status(200).json([{ message: "Improper response body" }]);
     try {
       // Creates embedding of the user's prompt and fetch matches from the DB using the embeddings.
       const { data, error } = await getDocumentsFromDB(userPrompt);
@@ -117,13 +123,13 @@ app.post(
       console.log(choice);
 
       if (!choice) {
-        return res.status(400).json({ message: "Sorry, we couldn't recommend a movie for you." });
+        return res.status(500).json({ message: "Sorry, we couldn't recommend a movie for you." });
       }
       if (choice.message.refusal) {
-        return res.status(400).json({ message: choice.message.refusal });
+        return res.status(500).json({ message: choice.message.refusal });
       }
       if (!choice.message.content) {
-        return res.status(400).json({ message: "Sorry, we couldn't recommend a movie for you." });
+        return res.status(500).json({ message: "Sorry, we couldn't recommend a movie for you." });
       }
 
       const movies = JSON.parse(choice.message.content).movies as MovieDetails[];
@@ -137,7 +143,7 @@ app.post(
       res.status(200).json(moviesWithPosters);
     } catch (error) {
       console.log(error);
-      res.status(400).json({ message: "Sorry, there was an issue with our server. " });
+      res.status(500).json({ message: "Sorry, there was an issue with our server. " });
     }
   },
 );

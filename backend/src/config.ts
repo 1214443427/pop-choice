@@ -15,3 +15,7 @@ if (!privateKey) throw new Error(`Expected env var SUPABASE_SECRET_KEY`);
 const url = process.env.SUPABASE_URL;
 if (!url) throw new Error(`Expected env var SUPABASE_URL`);
 export const supabase = createClient(url, privateKey);
+
+/** TMDB config **/
+const tmdbKey = process.env.TMDB_API;
+if (!tmdbKey) throw new Error(`Expected env var TMDB_API`);

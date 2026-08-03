@@ -1,4 +1,4 @@
-import type { MovieFormData, MovieResponseData } from "@shared/type";
+import { MovieResponseSchema, type MovieFormData, type MovieResponseData } from "@shared/type";
 
 export class APIError extends Error {
   code: number;
@@ -7,6 +7,15 @@ export class APIError extends Error {
     this.code = code;
     this.message = message;
   }
+}
+
+async function parseJson(response: Response) {
+  const jsonData = await response.json();
+  const parseResult = MovieResponseSchema.safeParse(jsonData);
+  if (!parseResult.success) {
+    throw new Error(parseResult.error.message);
+  }
+  return parseResult.data;
 }
 
 export async function fetchMovies(formData: MovieFormData): Promise<MovieResponseData> {
@@ -29,8 +38,12 @@ export async function fetchMovies(formData: MovieFormData): Promise<MovieRespons
   }
 
   try {
-    return (await response.json()) as MovieResponseData;
-  } catch {
-    throw new APIError(502, "Server sent a malformed response. ");
+    return await parseJson(response);
+  } catch (error) {
+    let specificError = "";
+    if (error instanceof Error) {
+      specificError = error.message;
+    }
+    throw new APIError(502, "Server sent a malformed response. " + specificError);
   }
 }

@@ -17,10 +17,11 @@ function Form({
           <fieldset>
             <input
               className="text-input"
-              placeholder="How many people?"
+              placeholder="How many people? (Up to 10)"
               name="people"
               type="number"
               min={1}
+              max={10}
               required
             />
             <input
