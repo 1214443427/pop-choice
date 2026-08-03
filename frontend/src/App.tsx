@@ -3,10 +3,12 @@ import hero from "./assets/hero.png";
 import spinner from "./assets/spinner.svg";
 import "./App.css";
 import Form from "./components/Form";
-import type { FormState } from "./Type";
+import { StartFormSchema, type FormState, type StartFormType } from "./Type";
 import { APIError, fetchMovies } from "./api/movies";
-import type { MovieFormData, PersonFormData } from "@shared/type";
+import { PersonFormSchema, type MovieFormData, type PersonFormData } from "@shared/type";
 import { clampMaxPeople } from "@shared/utils";
+import type z from "zod";
+import { ZodError } from "zod/v4";
 
 type QuestionStates = Extract<FormState, { phase: "question" }>;
 
@@ -14,6 +16,7 @@ function App() {
   const [state, formAction, isPending] = useActionState(handleFormSubmit, {
     phase: "question",
     step: "start",
+    valid: true,
   });
 
   async function requestMovieRecommendations(data: MovieFormData): Promise<FormState> {
@@ -64,28 +67,81 @@ function App() {
     };
   }
 
+  function validateData<T extends z.ZodType>(data: unknown, schema: T): z.output<T> {
+    const parseResult = schema.safeParse(data);
+    if (!parseResult.success) {
+      throw parseResult.error;
+    }
+    return parseResult.data;
+  }
+
+  function getZodErrorPath(error: unknown) {
+    return error instanceof ZodError ? String(error.issues[0].path.at(-1)) : "generic";
+  }
+
+  function getZodErrorMessage(error: unknown) {
+    return error instanceof ZodError
+      ? String(error.issues[0].message)
+      : "The app encountered an unexpected input. Please verify you have inputted everything correctly.";
+  }
+
   async function handleFormAdvance(state: QuestionStates, data: FormData): Promise<FormState> {
     if (state.step === "start") {
+      const startData = {
+        peopleCount: clampMaxPeople(Number(data.get("people"))) || 1,
+        timeAvailable: String(data.get("time")),
+      };
+      let parsedData;
+      try {
+        parsedData = validateData(startData, StartFormSchema);
+      } catch (error) {
+        return {
+          phase: "question",
+          valid: false,
+          step: "start",
+          defaultValue: startData,
+          error: {
+            path: getZodErrorPath(error),
+            message: getZodErrorMessage(error),
+          },
+        };
+      }
       return {
         phase: "question",
         step: "person",
+        valid: true,
         formData: {
-          startData: {
-            peopleCount: clampMaxPeople(Number(data.get("people"))) || 1,
-            timeAvailable: String(data.get("time")),
-          },
+          startData: parsedData,
           personData: [],
         },
         page: 1,
       };
     }
+
+    const submittedPersonData = Object.fromEntries(data) as PersonFormData;
+    let validatedData;
+    try {
+      validatedData = validateData(submittedPersonData, PersonFormSchema);
+    } catch (error) {
+      return {
+        ...state,
+        valid: false,
+        error: {
+          path: getZodErrorPath(error),
+          message: getZodErrorMessage(error),
+        },
+        defaultValue: submittedPersonData,
+      };
+    }
+
     const newFormData = {
       ...state.formData,
-      personData: [...state.formData.personData, Object.fromEntries(data) as PersonFormData],
+      personData: [...state.formData.personData, validatedData],
     };
     if (state.formData.startData.peopleCount > state.page) {
       return {
         ...state,
+        valid: true,
         formData: newFormData,
         page: state.page + 1,
       };
@@ -105,6 +161,7 @@ function App() {
         return {
           phase: "question",
           step: "start",
+          valid: true,
         };
       }
       return {
