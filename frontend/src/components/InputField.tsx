@@ -1,51 +1,26 @@
-import { useFormStatus } from "react-dom";
+import type { ReactNode } from "react";
+import type { InputError } from "../Type";
 
 function InputField({
   label,
-  placeholder,
   name,
-  radioOptions,
+  children,
+  error,
 }: {
-  label: string;
-  placeholder?: string;
+  label?: string;
   name: string;
-  radioOptions?: string[];
+  children: ReactNode;
+  error?: InputError | null;
 }) {
-  const { pending } = useFormStatus();
-
   return (
     <div className="input-field">
-      <label htmlFor={name} className="label-text">
-        {label}
-      </label>
-      {radioOptions ? (
-        <div className="radio-buttons">
-          {radioOptions.map((option, index) => (
-            <div key={index} className="radio-button">
-              <input
-                name={name}
-                id={`${name}-${index}`}
-                type="radio"
-                value={option}
-                required
-                disabled={pending}
-              />
-              <label htmlFor={`${name}-${index}`} className="label-text capitalize radio-label">
-                {option}
-              </label>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <textarea
-          name={name}
-          id={name}
-          placeholder={placeholder}
-          className="text-input"
-          required
-          readOnly={pending}
-        ></textarea>
+      {label && (
+        <label htmlFor={name} className="label-text">
+          {label}
+        </label>
       )}
+      {children}
+      {error?.path === name && <p className="error-text">{error.message}</p>}
     </div>
   );
 }

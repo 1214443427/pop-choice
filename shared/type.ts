@@ -2,17 +2,17 @@ import * as z from "zod";
 import { MAX_PEOPLE } from "@shared/const.js";
 
 export const PersonFormSchema = z.object({
-  favoriteMovie: z.string(),
-  period: z.enum(["new", "classic"]),
-  mood: z.enum(["fun", "serious", "inspiring", "scary"]),
-  islandPerson: z.string(),
+  favoriteMovie: z.string().trim().min(1, { message: "This field cannot be empty" }),
+  period: z.enum(["new", "classic"], "Please select one of the above options."),
+  mood: z.enum(["fun", "serious", "inspiring", "scary"], "Please select one of the above options."),
+  islandPerson: z.string().trim().min(1, { message: "This field cannot be empty" }),
 });
 
 export const MovieFormSchema = z
   .object({
     startData: z.object({
-      peopleCount: z.number().min(1).max(MAX_PEOPLE),
-      timeAvailable: z.string(),
+      peopleCount: z.number("Please enter a number.").min(1).max(MAX_PEOPLE),
+      timeAvailable: z.string().trim().min(1, { message: "This field cannot be empty" }),
     }),
     personData: z.array(PersonFormSchema),
   })

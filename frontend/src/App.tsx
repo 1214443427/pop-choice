@@ -3,7 +3,7 @@ import hero from "./assets/hero.png";
 import spinner from "./assets/spinner.svg";
 import "./App.css";
 import Form from "./components/Form";
-import { StartFormSchema, type FormState, type StartFormType } from "./Type";
+import { StartFormSchema, type FormState } from "./Type";
 import { APIError, fetchMovies } from "./api/movies";
 import { PersonFormSchema, type MovieFormData, type PersonFormData } from "@shared/type";
 import { clampMaxPeople } from "@shared/utils";
@@ -87,9 +87,10 @@ function App() {
 
   async function handleFormAdvance(state: QuestionStates, data: FormData): Promise<FormState> {
     if (state.step === "start") {
+      // console.log(data.get("peopleCount"));
       const startData = {
-        peopleCount: clampMaxPeople(Number(data.get("people"))) || 1,
-        timeAvailable: String(data.get("time")),
+        peopleCount: clampMaxPeople(Number(data.get("peopleCount"))),
+        timeAvailable: String(data.get("timeAvailable")),
       };
       let parsedData;
       try {

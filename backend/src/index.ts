@@ -46,14 +46,14 @@ async function fetchPoster(movie: MovieDetails) {
     const response = await fetch(encodeURI(fullURL), TMDB_OPTIONS);
     const movieFullDetail = (await response.json()) as { results: { poster_path?: string }[] };
     const baseURL = "https://image.tmdb.org/t/p/w500";
-    console.log(movieFullDetail);
+    // console.log(movieFullDetail);
     const posterURL = movieFullDetail.results[0]?.poster_path;
     if (!posterURL) {
       return;
     }
     return `${baseURL}${posterURL}`;
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return;
   }
 }
@@ -63,7 +63,7 @@ async function getDocumentsFromDB(userPrompt: string) {
     model: getEmbedModel(),
     input: userPrompt,
   });
-  console.log("Embed finished.", result.data[0]?.embedding, "Fetching from supabase");
+  // console.log("Embed finished.", result.data[0]?.embedding, "Fetching from supabase");
   const { data, error } = await supabase.rpc("match_documents", {
     query_embedding: result.data[0]?.embedding,
     match_threshold: 0.3,
@@ -120,7 +120,7 @@ app.post(
 
       const choice = response.choices[0];
 
-      console.log(choice);
+      // console.log(choice);
 
       if (!choice) {
         return res.status(500).json({ message: "Sorry, we couldn't recommend a movie for you." });
@@ -142,7 +142,7 @@ app.post(
       );
       res.status(200).json(moviesWithPosters);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       res.status(500).json({ message: "Sorry, there was an issue with our server. " });
     }
   },

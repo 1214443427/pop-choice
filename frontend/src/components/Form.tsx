@@ -1,6 +1,39 @@
 import type { FormState } from "../Type";
 import InputField from "./InputField";
 
+function RadioOptions({
+  options,
+  name,
+  isPending,
+  restoredValue,
+}: {
+  options: string[];
+  name: string;
+  isPending: boolean;
+  restoredValue: string;
+}) {
+  return (
+    <div className="radio-buttons">
+      {options.map((option, index) => (
+        <div key={index} className="radio-button">
+          <input
+            name={name}
+            id={`${name}-${index}`}
+            type="radio"
+            value={option}
+            required
+            disabled={isPending}
+            defaultChecked={restoredValue === option}
+          />
+          <label htmlFor={`${name}-${index}`} className="label-text capitalize radio-label">
+            {option}
+          </label>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function Form({
   state,
   formAction,
@@ -10,49 +43,89 @@ function Form({
   formAction: (payload: FormData) => void;
   isPending: boolean;
 }) {
+  const notValid = state.phase === "question" && state.valid === false;
   return (
     <form action={formAction}>
       {state.phase === "question" &&
         (state.step === "start" ? (
           <fieldset>
-            <input
-              className="text-input"
-              placeholder="How many people? (Up to 10)"
-              name="people"
-              type="number"
-              min={1}
-              max={10}
-              required
-            />
-            <input
-              className="text-input"
-              placeholder="How much time do you have?"
-              name="time"
-              required
-            />
+            <InputField name="peopleCount" error={state.valid === false ? state.error : null}>
+              <input
+                className="text-input"
+                name="peopleCount"
+                placeholder="How many people? (Up to 10)"
+                type="number"
+                min={1}
+                max={10}
+                required
+                defaultValue={notValid ? state.defaultValue.peopleCount : undefined}
+              ></input>
+            </InputField>
+            <InputField name="timeAvailable" error={state.valid === false ? state.error : null}>
+              <input
+                className="text-input"
+                placeholder="How much time do you have?"
+                name="timeAvailable"
+                defaultValue={notValid ? state.defaultValue.timeAvailable : undefined}
+              ></input>
+            </InputField>
           </fieldset>
         ) : (
           <fieldset>
             <InputField
               label="What’s your favorite movie and why?"
-              placeholder="Describe your favorite movie..."
               name="favoriteMovie"
-            />
+              error={state.valid === false ? state.error : null}
+            >
+              <textarea
+                name="favoriteMovie"
+                id="favoriteMovie"
+                placeholder="Describe your favorite movie..."
+                className="text-input"
+                required
+                readOnly={isPending}
+                defaultValue={notValid ? state.defaultValue.favoriteMovie : undefined}
+              ></textarea>
+            </InputField>
             <InputField
               label="Are you in the mood for something new or a classic?"
               name="period"
-              radioOptions={["new", "classic"]}
-            />
+              error={state.valid === false ? state.error : null}
+            >
+              <RadioOptions
+                options={["new", "classic"]}
+                name="period"
+                isPending={isPending}
+                restoredValue={notValid ? state.defaultValue.period : ""}
+              />
+            </InputField>
             <InputField
               label="What are you in the mood for?"
               name="mood"
-              radioOptions={["fun", "serious", "inspiring", "scary"]}
-            />
+              error={state.valid === false ? state.error : null}
+            >
+              <RadioOptions
+                options={["fun", "serious", "inspiring", "scary"]}
+                name="mood"
+                isPending={isPending}
+                restoredValue={notValid ? state.defaultValue.mood : ""}
+              />
+            </InputField>
             <InputField
               label="Which famous film person would you love to be stranded on an island with and why?"
-              placeholder="Maybe your favorite actor..."
               name="islandPerson"
-            />
+              error={state.valid === false ? state.error : null}
+            >
+              <textarea
+                name="islandPerson"
+                id="islandPerson"
+                placeholder="Maybe your favorite actor..."
+                className="text-input"
+                required
+                readOnly={isPending}
+                defaultValue={notValid ? state.defaultValue.islandPerson : undefined}
+              ></textarea>
+            </InputField>
           </fieldset>
         ))}
 

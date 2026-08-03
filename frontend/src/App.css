@@ -201,3 +201,7 @@ fieldset {
   flex-direction: column;
   gap: 10px;
 }
+
+.error-text {
+  color: rgb(255, 64, 64);
+}

@@ -31,10 +31,7 @@ export type FormState =
       valid: false;
       step: "start";
       defaultValue: StartFormType;
-      error: {
-        path: string;
-        message: string;
-      };
+      error: InputError;
     }
   | {
       phase: "question";
@@ -50,11 +47,13 @@ export type FormState =
       formData: MovieFormData;
       page: number;
       defaultValue: PersonFormData;
-      error: {
-        path: string;
-        message: string;
-      };
+      error: InputError;
     };
+
+export type InputError = {
+  path: string;
+  message: string;
+};
 
 export const StartFormSchema = MovieFormSchema.shape.startData;
 
