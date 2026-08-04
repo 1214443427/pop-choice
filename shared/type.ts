@@ -1,5 +1,5 @@
 import * as z from "zod";
-import { MAX_PEOPLE } from "@shared/const.js";
+import { MAX_PEOPLE } from "./const.js";
 
 export const PersonFormSchema = z.object({
   favoriteMovie: z.string().trim().min(1, { message: "This field cannot be empty" }),
