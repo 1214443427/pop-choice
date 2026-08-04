@@ -42,8 +42,8 @@ app.use(cors(corsOptions));
 //fetches poster of a movie from TMDB.
 async function fetchPoster(movie: MovieDetails) {
   try {
-    const fullURL = `${TMDB_URL}query=${movie.title}${movie.year ? `&primary_release_year=${movie.year}` : ""}`;
-    const response = await fetch(encodeURI(fullURL), TMDB_OPTIONS);
+    const fullURL = `${TMDB_URL}query=${encodeURIComponent(movie.title)}${movie.year ? `&primary_release_year=${encodeURIComponent(movie.year)}` : ""}`;
+    const response = await fetch(fullURL, TMDB_OPTIONS);
     const movieFullDetail = (await response.json()) as { results: { poster_path?: string }[] };
     const baseURL = "https://image.tmdb.org/t/p/w500";
     // console.log(movieFullDetail);

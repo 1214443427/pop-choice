@@ -18,7 +18,7 @@ export const MovieFormSchema = z
   })
   .refine((data) => data.personData.length === data.startData.peopleCount, {
     message: "The number of forms submitted does not match the people count.",
-    path: ["peopleCount", "personData"],
+    path: ["personData"],
   });
 
 export const MovieResponseSchema = z.array(

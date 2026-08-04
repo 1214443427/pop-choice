@@ -87,11 +87,8 @@ function Form({
                 defaultValue={notValid ? state.defaultValue.favoriteMovie : undefined}
               ></textarea>
             </InputField>
-            <InputField
-              label="Are you in the mood for something new or a classic?"
-              name="period"
-              error={state.valid === false ? state.error : null}
-            >
+            <InputField name="period" error={state.valid === false ? state.error : null}>
+              <legend> Are you in the mood for something new or a classic?</legend>
               <RadioOptions
                 options={["new", "classic"]}
                 name="period"
@@ -99,11 +96,8 @@ function Form({
                 restoredValue={notValid ? state.defaultValue.period : ""}
               />
             </InputField>
-            <InputField
-              label="What are you in the mood for?"
-              name="mood"
-              error={state.valid === false ? state.error : null}
-            >
+            <InputField name="mood" error={state.valid === false ? state.error : null}>
+              <legend>What are you in the mood for?</legend>
               <RadioOptions
                 options={["fun", "serious", "inspiring", "scary"]}
                 name="mood"

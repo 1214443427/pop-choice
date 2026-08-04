@@ -15,7 +15,7 @@ export function getAIModel() {
   const aiModel = process.env.AI_MODEL;
   if (!aiModel) {
     console.error("missing AI model");
-    throw Error("missing embed model");
+    throw Error("missing AI model");
   }
   return aiModel;
 }
@@ -91,7 +91,7 @@ export function getInitialPrompts(): Message[] {
 
 export function getUserPrompt(req: Request<any, any, MovieFormData>): string {
   const parsedData = MovieFormSchema.safeParse(req.body);
-  console.log(parsedData);
+  // console.log(parsedData);
   if (parsedData.success === false) {
     throw new Error("Client sent malformed data.");
   }
@@ -99,7 +99,7 @@ export function getUserPrompt(req: Request<any, any, MovieFormData>): string {
   let userPrompt = `This request came from a ${startData.peopleCount} person group. Their planned watch time is: ${startData.timeAvailable}. `;
   personData.forEach((person, index) => {
     const { period, mood, favoriteMovie, islandPerson } = person;
-    userPrompt += `--- Person ${index}: `;
+    userPrompt += `--- Person ${index + 1}: `;
     userPrompt += `I am looking for something ${period}.\n It should be ${mood}.\n My favorite movie is: ${favoriteMovie}\n Film person that I would love to be stranded on an island with: ${islandPerson}`;
   });
   return userPrompt;
