@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { InputError } from "../Type";
+import type { InputError } from "../type";
 
 function InputField({
   label,

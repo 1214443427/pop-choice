@@ -89,8 +89,8 @@ export function getInitialPrompts(): Message[] {
   return messages;
 }
 
-export function getUserPrompt(req: Request<any, any, MovieFormData>): string {
-  const parsedData = MovieFormSchema.safeParse(req.body);
+export function getUserPrompt(formData: MovieFormData): string {
+  const parsedData = MovieFormSchema.safeParse(formData);
   // console.log(parsedData);
   if (parsedData.success === false) {
     throw new Error("Client sent malformed data.");

@@ -3,12 +3,11 @@ import hero from "./assets/hero.png";
 import spinner from "./assets/spinner.svg";
 import "./App.css";
 import Form from "./components/Form";
-import { StartFormSchema, type FormState } from "./Type";
+import { StartFormSchema, type FormState } from "./type";
 import { APIError, fetchMovies } from "./api/movies";
 import { PersonFormSchema, type MovieFormData, type PersonFormData } from "@shared/type";
 import { clampMaxPeople } from "@shared/utils";
-import type z from "zod";
-import { ZodError } from "zod/v4";
+import { getZodErrorMessage, getZodErrorPath, validateData } from "./lib/utils";
 
 type QuestionStates = Extract<FormState, { phase: "question" }>;
 
@@ -65,24 +64,6 @@ function App() {
         message: "Sorry, there is an issue on our end. ",
       },
     };
-  }
-
-  function validateData<T extends z.ZodType>(data: unknown, schema: T): z.output<T> {
-    const parseResult = schema.safeParse(data);
-    if (!parseResult.success) {
-      throw parseResult.error;
-    }
-    return parseResult.data;
-  }
-
-  function getZodErrorPath(error: unknown) {
-    return error instanceof ZodError ? String(error.issues[0].path.at(-1)) : "generic";
-  }
-
-  function getZodErrorMessage(error: unknown) {
-    return error instanceof ZodError
-      ? String(error.issues[0].message)
-      : "The app encountered an unexpected input. Please verify you have inputted everything correctly.";
   }
 
   async function handleFormAdvance(state: QuestionStates, data: FormData): Promise<FormState> {

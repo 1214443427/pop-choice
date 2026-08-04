@@ -1,4 +1,4 @@
-import type { FormState } from "../Type";
+import type { FormState } from "../type";
 import InputField from "./InputField";
 
 function RadioOptions({
