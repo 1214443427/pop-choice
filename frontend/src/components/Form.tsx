@@ -45,7 +45,7 @@ function Form({
 }) {
   const notValid = state.phase === "question" && state.valid === false;
   return (
-    <form action={formAction}>
+    <form action={formAction} aria-label="question-form">
       {state.phase === "question" &&
         (state.step === "start" ? (
           <fieldset>

@@ -2,9 +2,9 @@ import { VECTOR_DB_MATCH_COUNT, VECTOR_DB_THRESHOLD } from "@shared/const.js";
 import type { MovieDetails } from "../app.js";
 import { openai, supabase } from "../config.js";
 import { getEmbedModel } from "./utils.js";
+import { TMDB_URL } from "../const.js";
 
 //fetches poster of a movie from TMDB.
-const TMDB_URL = "https://api.themoviedb.org/3/search/movie?";
 const TMDB_OPTIONS = {
   method: "GET",
   headers: { accept: "application/json", Authorization: `Bearer ${process.env.TMDB_API}` },
@@ -12,12 +12,13 @@ const TMDB_OPTIONS = {
 
 export async function fetchPoster(movie: MovieDetails) {
   try {
-    const fullURL = `${TMDB_URL}query=${encodeURIComponent(movie.title)}${movie.year ? `&primary_release_year=${encodeURIComponent(movie.year)}` : ""}`;
+    const fullURL = `${TMDB_URL}?query=${encodeURIComponent(movie.title)}${movie.year ? `&primary_release_year=${encodeURIComponent(movie.year)}` : ""}`;
     const response = await fetch(fullURL, TMDB_OPTIONS);
     const movieFullDetail = (await response.json()) as { results: { poster_path?: string }[] };
     const baseURL = "https://image.tmdb.org/t/p/w500";
     // console.log(movieFullDetail);
     const posterURL = movieFullDetail.results[0]?.poster_path;
+
     if (!posterURL) {
       return;
     }

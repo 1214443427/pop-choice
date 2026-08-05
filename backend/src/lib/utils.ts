@@ -36,7 +36,7 @@ export function getInitialPrompts(): Message[] {
     },
     {
       role: "user",
-      content: `This request came from a 2 person group. Their planned watch time is: 2 hours. Person 1: I am looking for something classic.\nIt should be fun.\nMy favorite movie is: the grand budapest hotel. I like the humorous nature with a hint of history. \nMy favorite actor is: the guy from Batman. Person 2: I am looking for something new. \nIt should be inspiring.\n My favorite movie is: Shawshank's Redemption because it of its inspiring imagery. \nFilm person that I would love to be stranded on an island with:Brad Pitt  ---LIST: Jojo Rabbit (2019) Jojo is a lonely German boy who discovers that his single mother is hiding a Jewish girl in their attic. Aided only by his imaginary friend -- Adolf Hitler -- Jojo must confront his blind nationalism as World War II continues to rage on. |||  Green Book (2018)  Dr. Don Shirley is a world-class African-American pianist who's about to embark on a concert tour in the Deep South in 1962. In need of a driver and protection, Shirley recruits Tony Lip, a tough-talking bouncer from an Italian-American neighborhood in the Bronx. Despite their differences, the two men soon develop an unexpected bond while confronting racism and danger in an era of segregation. |||  American Hustle(2013) Irving Rosenfeld (Christian Bale) dabbles in forgery and loan-sharking, but when he falls for fellow grifter Sydney Prosser (Amy Adams), things change in a big way. Caught red-handed by FBI agent Richie DiMaso (Bradley Cooper), Irv and Sydney are forced to work undercover as part of DiMaso's sting operation to nail a New Jersey mayor (Jeremy Renner). Meanwhile, Irv's jealous wife (Jennifer Lawrence) may be the one to bring everyone's world crashing down. Based on the 1970s Abscam case. `,
+      content: `This request came from a 2 person group. Their planned watch time is: 2 hours. --- Person 1: I am looking for something classic.\nIt should be fun.\nMy favorite movie is: the grand budapest hotel. I like the humorous nature with a hint of history. \nFilm person that I would love to be stranded on an island with: the guy from Batman.\n --- Person 2: I am looking for something new. \nIt should be inspiring. \nMy favorite movie is: Shawshank's Redemption because it of its inspiring imagery. \nFilm person that I would love to be stranded on an island with:Brad Pitt\n ---LIST: Jojo Rabbit (2019) Jojo is a lonely German boy who discovers that his single mother is hiding a Jewish girl in their attic. Aided only by his imaginary friend -- Adolf Hitler -- Jojo must confront his blind nationalism as World War II continues to rage on. |||  Green Book (2018)  Dr. Don Shirley is a world-class African-American pianist who's about to embark on a concert tour in the Deep South in 1962. In need of a driver and protection, Shirley recruits Tony Lip, a tough-talking bouncer from an Italian-American neighborhood in the Bronx. Despite their differences, the two men soon develop an unexpected bond while confronting racism and danger in an era of segregation. |||  American Hustle(2013) Irving Rosenfeld (Christian Bale) dabbles in forgery and loan-sharking, but when he falls for fellow grifter Sydney Prosser (Amy Adams), things change in a big way. Caught red-handed by FBI agent Richie DiMaso (Bradley Cooper), Irv and Sydney are forced to work undercover as part of DiMaso's sting operation to nail a New Jersey mayor (Jeremy Renner). Meanwhile, Irv's jealous wife (Jennifer Lawrence) may be the one to bring everyone's world crashing down. Based on the 1970s Abscam case. `,
     },
     {
       role: "assistant",
@@ -69,7 +69,7 @@ export function getInitialPrompts(): Message[] {
     },
     {
       role: "user",
-      content: `This request came from a 1 person group. Their planned watch time is: 2.5 hours. Person 1: I am looking for something classic.\nIt should be serious.\n My favorite movie is: the one with an astronaut and spaceship.\n Film person that I would love to be stranded on an island with:: Jeff ---LIST: `,
+      content: `This request came from a 1 person group. Their planned watch time is: 2.5 hours. --- Person 1: I am looking for something classic. \nIt should be serious. \nMy favorite movie is: the one with an astronaut and spaceship. \nFilm person that I would love to be stranded on an island with: Jeff\n ---LIST: `,
     },
     {
       role: "assistant",
@@ -99,8 +99,8 @@ export function getUserPrompt(formData: MovieFormData): string {
   let userPrompt = `This request came from a ${startData.peopleCount} person group. Their planned watch time is: ${startData.timeAvailable}. `;
   personData.forEach((person, index) => {
     const { period, mood, favoriteMovie, islandPerson } = person;
-    userPrompt += `--- Person ${index + 1}: `;
-    userPrompt += `I am looking for something ${period}.\n It should be ${mood}.\n My favorite movie is: ${favoriteMovie}\n Film person that I would love to be stranded on an island with: ${islandPerson}`;
+    userPrompt += ` --- Person ${index + 1}: `;
+    userPrompt += `I am looking for something ${period}. \nIt should be ${mood}. \nMy favorite movie is: ${favoriteMovie} \nFilm person that I would love to be stranded on an island with: ${islandPerson}\n`;
   });
   return userPrompt;
 }
