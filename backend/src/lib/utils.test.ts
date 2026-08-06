@@ -1,6 +1,6 @@
 import type { MovieFormData } from "@shared/type.js";
 import { describe, it, expect } from "vitest";
-import { getUserPrompt } from "./utils.js";
+import { getInitialPrompts, getUserPrompt } from "./utils.js";
 
 const personFormData: MovieFormData = {
   startData: {
@@ -54,5 +54,10 @@ describe("Testing getUserPrompt", () => {
     expect(getUserPrompt(personFormData)).toContain("Rescue Dawn");
     expect(getUserPrompt(personFormData)).toContain("inspiring");
     expect(getUserPrompt(personFormData)).toContain("new");
+  });
+
+  it("prompt shape is stable", () => {
+    expect(getUserPrompt(personFormData)).toMatchSnapshot();
+    expect(getInitialPrompts()).toMatchSnapshot();
   });
 });

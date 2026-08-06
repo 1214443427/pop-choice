@@ -6,7 +6,7 @@ import { openai } from "./config.js";
 import { getAIModel, getInitialPrompts, getUserPrompt } from "./lib/utils.js";
 import * as z from "zod";
 import { zodResponseFormat } from "openai/helpers/zod.js";
-import { fetchPoster, getDocumentsFromDB } from "./lib/api.js";
+import { createEmbeddingFromPrompt, fetchPoster, getDocumentsFromDB } from "./lib/api.js";
 
 const MovieDetails = z.object({
   title: z.string(),
@@ -55,7 +55,8 @@ app.post(
     // return res.status(200).json([{ message: "Improper response body" }]);
     try {
       // Creates embedding of the user's prompt and fetch matches from the DB using the embeddings.
-      const { data, error } = await getDocumentsFromDB(userPrompt);
+      const embedding = await createEmbeddingFromPrompt(userPrompt);
+      const { data, error } = await getDocumentsFromDB(embedding);
       if (error) {
         console.error("supabase error", error);
         return res.status(500).json({ message: "Internal DB error" });

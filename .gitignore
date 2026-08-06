@@ -13,3 +13,5 @@ yarn-error.log*
 *.swp
 *.swo
 TESTING.md
+coverage
+__snapshots__
