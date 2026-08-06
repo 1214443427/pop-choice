@@ -1,6 +1,6 @@
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import { afterAll, afterEach } from "vitest";
+import { afterAll, afterEach, vi } from "vitest";
 import {
   AI_URL,
   EMBEDDING_DIMENSIONS,
@@ -10,6 +10,7 @@ import {
   FIGHTING_CLUB_PATH,
   MARIO_PATH,
   SUPABASE_URL,
+  TEST_BASE_URL,
 } from "./testConst.js";
 import { TMDB_URL } from "../const.js";
 import { VECTOR_DB_MATCH_COUNT, VECTOR_DB_THRESHOLD } from "@shared/const.js";
@@ -88,6 +89,9 @@ const dbResult = [
   },
 ];
 
+export const chatCalled = vi.fn();
+export const embeddingCalled = vi.fn();
+
 export const restHandlers = [
   http.get(TMDB_URL, ({ request }) => {
     const url = new URL(request.url);
@@ -119,6 +123,7 @@ export const restHandlers = [
   http.post<never, { encoding_format?: string; input: string }>(
     `${AI_URL}/embeddings`,
     async ({ request }) => {
+      embeddingCalled();
       const { encoding_format, input } = await request.json();
       if (input === "error") {
         return HttpResponse.json(
@@ -160,30 +165,51 @@ export const restHandlers = [
     },
   ),
 
-  http.post<never, { encoding_format?: string; input: string }>(
-    `${AI_URL}/${getAIModel()}`,
+  http.post<never, { formData: MovieFormData }>(
+    `${AI_URL}/chat/completions`,
     async ({ request }) => {
+      chatCalled();
       return HttpResponse.json({
-        object: "list",
-        data: [{ object: "embedding", index: 0 }],
+        choices: [
+          {
+            message: {
+              content: JSON.stringify({
+                movies: [
+                  {
+                    title: "test",
+                    description: "test",
+                    year: 2000,
+                    poster: "test",
+                  },
+                  {
+                    title: "test",
+                    description: "test",
+                  },
+                ],
+              }),
+            },
+          },
+        ],
       });
     },
   ),
-
-  http.post<never, { formData: MovieFormData }>(`/api/movies`, async ({ request }) => {
-    return HttpResponse.json({
-      object: "list",
-      data: [{ object: "embedding", index: 0 }],
-    });
-  }),
 ];
 
 // Set up server
-const server = setupServer(...restHandlers);
+export const server = setupServer(...restHandlers);
 
-server.listen({ onUnhandledRequest: "error" });
+server.listen({
+  onUnhandledRequest(request, print) {
+    const { hostname } = new URL(request.url);
+    if (hostname === "127.0.0.1" || hostname === "localhost" || hostname === "::1") return;
+    print.error();
+  },
+});
 
 // Drop per-test overrides so handlers can't leak between tests.
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+  server.resetHandlers();
+  vi.resetAllMocks();
+});
 
 afterAll(() => server.close());

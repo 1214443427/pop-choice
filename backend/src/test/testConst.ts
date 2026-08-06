@@ -9,3 +9,5 @@ export const FASTNFURIOUS_PATH = "/qRyy2UmjC5ur9bDi3kpNNRCc5nc.jpg";
 
 export const ERROR_MESSAGE_BAD_REQUEST = "Bad Request";
 export const ERROR_MESSAGE_UNEXPECTED = "Unexpected Parameter";
+
+export const TEST_BASE_URL = "http://localhost:3000/";

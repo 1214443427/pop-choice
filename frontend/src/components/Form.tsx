@@ -88,7 +88,10 @@ function Form({
               ></textarea>
             </InputField>
             <InputField name="period" error={state.valid === false ? state.error : null}>
-              <legend> Are you in the mood for something new or a classic?</legend>
+              <legend className="label-text">
+                {" "}
+                Are you in the mood for something new or a classic?
+              </legend>
               <RadioOptions
                 options={["new", "classic"]}
                 name="period"
@@ -97,7 +100,7 @@ function Form({
               />
             </InputField>
             <InputField name="mood" error={state.valid === false ? state.error : null}>
-              <legend>What are you in the mood for?</legend>
+              <legend className="label-text">What are you in the mood for?</legend>
               <RadioOptions
                 options={["fun", "serious", "inspiring", "scary"]}
                 name="mood"
