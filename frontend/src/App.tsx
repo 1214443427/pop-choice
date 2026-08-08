@@ -170,6 +170,7 @@ function App() {
             <img
               className="movie-image"
               key={state.recommendationIndex}
+              alt="Poster of the movie"
               src={state.movieRecommendations[state.recommendationIndex].poster ?? hero}
             />
             <p className="movie-description">

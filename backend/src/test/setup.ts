@@ -179,7 +179,6 @@ export const restHandlers = [
                     title: "test",
                     description: "test",
                     year: 2000,
-                    poster: "test",
                   },
                   {
                     title: "test",

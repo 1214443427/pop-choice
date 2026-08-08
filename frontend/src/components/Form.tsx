@@ -44,6 +44,20 @@ function Form({
   isPending: boolean;
 }) {
   const notValid = state.phase === "question" && state.valid === false;
+
+  const getButtonText = () => {
+    if (state.phase === "question") {
+      if (state.step == "start") {
+        return "Start";
+      }
+      return state.page < state.formData.startData.peopleCount ? "Next Person" : "Get Movie";
+    }
+
+    return state.success && state.recommendationIndex < state.movieRecommendations.length - 1
+      ? "Next Movie"
+      : "Go Again";
+  };
+
   return (
     <form action={formAction} aria-label="question-form">
       {state.phase === "question" &&
@@ -66,6 +80,7 @@ function Form({
                 className="text-input"
                 placeholder="How much time do you have?"
                 name="timeAvailable"
+                type="text"
                 defaultValue={notValid ? state.defaultValue.timeAvailable : undefined}
               ></input>
             </InputField>
@@ -127,11 +142,7 @@ function Form({
         ))}
 
       <button className="form-button" disabled={isPending}>
-        {state.phase === "question"
-          ? "Get Movie"
-          : state.success && state.recommendationIndex < state.movieRecommendations.length - 1
-            ? "Next Movie"
-            : "Go Again"}
+        {getButtonText()}
       </button>
     </form>
   );
