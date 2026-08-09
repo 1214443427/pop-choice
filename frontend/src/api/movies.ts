@@ -22,7 +22,7 @@ export async function fetchMovies(formData: MovieFormData): Promise<MovieRespons
   let response;
 
   try {
-    response = await fetch("http://localhost:3000/api/movies", {
+    response = await fetch("/api/movies", {
       method: "POST",
       headers: { "Content-Type": "application/JSON" },
       body: JSON.stringify(formData),

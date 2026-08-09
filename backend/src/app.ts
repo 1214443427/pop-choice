@@ -1,17 +1,25 @@
+import path from "path";
+import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import { moviesHandler } from "./route/movies.js";
 
+const clientDist = path.join(import.meta.dirname, "..", "public");
+
 export const app = express();
-app.use(express.json());
 
-const corsOptions = {
-  origin: ["http://localhost:5173"], // Allowed domains
-  optionsSuccessStatus: 200,
-};
-app.use(cors(corsOptions));
+if (process.env.NODE_ENV !== "production") {
+  app.use(cors({ origin: ["http://localhost:5173"], optionsSuccessStatus: 200 }));
+}
 
-app.post("/api/movies", moviesHandler);
+app.post("/api/movies", express.json(), moviesHandler); //only apply .json middleware to the api routes.
+
+// const clientDist = publicPath;
+app.use(express.static(clientDist));
+
+app.get("/*splat", (req, res) => {
+  res.sendFile(path.join(clientDist, "index.html"));
+});
 
 /*
 The json schema that was replaced by zod.

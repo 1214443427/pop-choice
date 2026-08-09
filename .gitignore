@@ -15,3 +15,4 @@ yarn-error.log*
 TESTING.md
 coverage
 __snapshots__
+backend/public

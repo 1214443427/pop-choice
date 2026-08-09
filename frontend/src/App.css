@@ -9,6 +9,7 @@
   justify-content: center;
   place-items: center;
   background-color: #000823;
+  overflow: scroll;
 }
 
 .app-container {

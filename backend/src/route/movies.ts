@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { MovieFormData, MovieResponseData } from "@shared/type.js";
+import { MovieResponseSchema, type MovieFormData, type MovieResponseData } from "@shared/type.js";
 import { openai } from "../config.js";
 import { getAIModel, getInitialPrompts, getUserPrompt } from "../lib/utils.js";
 import { zodResponseFormat } from "openai/helpers/zod.js";
@@ -78,10 +78,17 @@ export const moviesHandler = async (
       return res.status(500).json({ message: "Sorry, we couldn't recommend a movie for you." });
     }
 
-    const movies = JSON.parse(choice.message.content).movies as MovieDetails[];
+    const movies = JSON.parse(choice.message.content).movies;
+    const parseMoviesResult = MovieResponseSchema.safeParse(movies);
+
+    if (!parseMoviesResult.success) {
+      return res.status(500).json({
+        message: "Sorry, our model is having difficulty making recommendations. Please try agian.",
+      });
+    }
 
     const moviesWithPosters: MovieResponseData = await Promise.all(
-      movies.map(async (movie) => ({
+      parseMoviesResult.data.map(async (movie) => ({
         ...movie,
         poster: await fetchPoster(movie),
       })),

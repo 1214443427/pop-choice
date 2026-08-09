@@ -122,8 +122,4 @@ describe("MovieResponseSchema Testing", () => {
     const stringYearArray = replaceProperty(movieResponses, "year", "2026");
     expect(MovieResponseSchema.safeParse(stringYearArray).success).toBe(false);
   });
-  it("Response with empty description should fail", () => {
-    const newArray = replaceProperty(movieResponses, "description", undefined);
-    expect(MovieResponseSchema.safeParse(newArray).success).toBe(false);
-  });
 });

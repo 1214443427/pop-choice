@@ -1,13 +1,13 @@
 import { test, expect, describe } from "vitest";
-import { fireEvent, getByRole, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { userEvent, type UserEvent } from "@testing-library/user-event";
 import Hero from "./assets/hero.png";
 
 import App from "./App";
-import { apiCalled } from "./test/setup";
+import { apiCalled, errorHandler } from "./test/setup";
 import type { MovieFormData } from "@shared/type";
 
-async function progressToPersonForm(user: UserEvent, person: Number, time: string) {
+async function progressToPersonForm(user: UserEvent, person: number, time: string) {
   const peopleCountTextbox = screen.getByPlaceholderText(/how many people/i);
   const timeTextbox = screen.getByPlaceholderText(/how much time/i);
   const actionButton = screen.getByRole("button");
@@ -128,17 +128,17 @@ describe("App", () => {
     const peopleCountTextbox = screen.getByPlaceholderText(/how many people/i);
     const timeTextbox = screen.getByPlaceholderText(/how much time/i);
     const form = screen.getByRole("form");
-    await user.type(peopleCountTextbox, "not-int");
-    await user.type(timeTextbox, "2h");
-
-    fireEvent.submit(form);
-    expect(timeTextbox).toHaveValue("2h");
-
-    await user.clear(peopleCountTextbox);
     await user.type(peopleCountTextbox, "2");
+
+    fireEvent.submit(form);
+    expect(screen.queryByText("1")).not.toBeInTheDocument();
+    expect(peopleCountTextbox).toHaveValue(2);
+
+    await user.clear(timeTextbox);
+    await user.type(timeTextbox, "2 hours");
     fireEvent.submit(form);
 
-    expect(screen.getByText("1")).toBeInTheDocument();
+    expect(await screen.findByText("1")).toBeInTheDocument();
     const actorTextbox = screen.getByPlaceholderText(/maybe your favorite actor/i);
     const scaryRadio = screen.getByRole("radio", { name: "scary" });
     await user.type(actorTextbox, "Tom");
@@ -175,5 +175,15 @@ describe("App", () => {
 
     expect(classicRadio).not.toBeChecked();
     expect(newRadio).toBeChecked();
+  });
+
+  test("the app should display errors on API error.", async () => {
+    errorHandler(400, "Sorry, we couldn't recommend a movie for you.");
+    const user = userEvent.setup();
+    render(<App />);
+    await progressToPersonForm(user, 1, "2h");
+    await fill(user);
+    expect(await screen.findByText(/We have encountered an error/i)).toBeInTheDocument();
+    expect(await screen.findByText(/400/i)).toBeInTheDocument();
   });
 });

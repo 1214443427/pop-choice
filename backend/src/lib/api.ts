@@ -1,5 +1,5 @@
 import { VECTOR_DB_MATCH_COUNT, VECTOR_DB_THRESHOLD } from "@shared/const.js";
-import type { MovieDetails } from "../app.js";
+import type { MovieDetails } from "../route/movies.js";
 import { openai, supabase } from "../config.js";
 import { getEmbedModel } from "./utils.js";
 import { TMDB_URL } from "../const.js";

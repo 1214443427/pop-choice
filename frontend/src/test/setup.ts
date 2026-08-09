@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom/vitest";
-import { afterAll, afterEach, beforeAll, beforeEach, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
@@ -10,7 +10,7 @@ afterEach(() => {
 });
 
 beforeEach(() => {
-  vi.restoreAllMocks();
+  vi.clearAllMocks();
 });
 
 export const apiCalled = vi.fn();
@@ -34,7 +34,15 @@ export const restHandlers = [
   }),
 ];
 
-const server = setupServer(...restHandlers);
+export function errorHandler(status: number, message: string) {
+  server.use(
+    http.post(`/api/movies`, async () => {
+      return HttpResponse.json({ message: message }, { status: status });
+    }),
+  );
+}
+
+export const server = setupServer(...restHandlers);
 
 server.listen({
   onUnhandledRequest(request, print) {
