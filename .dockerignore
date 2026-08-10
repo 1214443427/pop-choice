@@ -1,0 +1,44 @@
+# The build context is the repo root, because `shared/` is a sibling of both
+# `backend/` and `frontend/` and both reach it via the `@shared/*` alias.
+
+# Dependencies — reinstalled inside the image from the lockfiles.
+# The lockfiles themselves must NOT be ignored: `npm ci` requires them.
+**/node_modules
+
+# Build output — regenerated during the image build.
+**/dist
+**/build
+**/coverage
+backend/public
+
+# Secrets — injected at runtime, never baked into a layer.
+**/.env
+**/.env.*
+!**/.env.example
+
+# VCS, editor and OS noise
+.git
+.gitignore
+.github
+.claude
+.idea
+.vscode
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs and runtime scratch
+**/*.log
+**/*.pid
+**/.cache
+**/.tmp
+
+# Container files themselves
+Dockerfile
+.dockerignore
+compose.yaml
+
+# Docs
+TESTING.md
+**/README.md

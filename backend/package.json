@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "test": "npx vitest"
+    "test": "npx vitest",
+    "start": "npx tsx src/index.ts"
   },
   "dependencies": {
     "@langchain/core": "^1.2.3",
@@ -16,7 +17,8 @@
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "openai": "^6.49.0",
-    "zod": "^4.4.3"
+    "zod": "^4.4.3",
+    "tsx": "^4.23.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
@@ -26,7 +28,6 @@
     "@vitest/coverage-v8": "^4.1.10",
     "msw": "^2.15.0",
     "supertest": "^7.2.2",
-    "tsx": "^4.23.1",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"
   },

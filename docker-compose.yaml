@@ -1,0 +1,14 @@
+services:
+  server:
+    build:
+      context: .
+    image: pop-choice
+    init: true
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    env_file:
+      - backend/.env
+    restart: unless-stopped
