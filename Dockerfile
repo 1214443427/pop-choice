@@ -1,27 +1,28 @@
-FROM node:24-alpine AS client
+FROM node:24-alpine AS frontend
 WORKDIR /app
-COPY frontend/package*.json ./client/
+COPY frontend/package*.json ./frontend/
 COPY shared/package*.json ./shared/
-RUN npm ci --prefix ./shared
-RUN npm ci --prefix ./client
+COPY package*.json /app/
+RUN npm ci
 COPY shared/ ./shared/
-COPY frontend/ ./client/
-RUN npm run build --prefix ./client
+COPY frontend/ ./frontend/
+RUN npm run build -w frontend
 
 FROM node:24-alpine AS server-deps
 WORKDIR /app
-COPY backend/package*.json ./server/
+COPY backend/package*.json ./backend/
 COPY shared/package*.json ./shared/
-RUN npm ci --omit=dev --prefix ./shared
-RUN npm ci --omit=dev --prefix ./server
+COPY package*.json /app/
+RUN npm ci --omit=dev --workspace backend
 
 FROM node:24-alpine AS runtime
 WORKDIR /app
-COPY --from=server-deps --chown=node:node /app/server/node_modules/ ./server/node_modules/
-COPY --from=server-deps --chown=node:node /app/shared/node_modules/ ./shared/node_modules/
-COPY backend/ ./server/
+COPY --from=server-deps --chown=node:node /app/node_modules ./node_modules
+COPY --from=server-deps --chown=node:node /app/backend/ ./backend/
+COPY --from=server-deps --chown=node:node /app/shared/ ./shared/
+COPY backend/ ./backend/
 COPY shared/ ./shared/
-COPY --from=client --chown=node:node /app/client/dist/ /app/server/public/
+COPY --from=frontend --chown=node:node /app/frontend/dist/ /app/backend/public/
 USER node
 EXPOSE 3000
-CMD ["npm", "start", "--prefix", "./server"]
+CMD ["npm", "start", "--prefix", "./backend"]

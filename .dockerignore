@@ -37,7 +37,7 @@ Thumbs.db
 # Container files themselves
 Dockerfile
 .dockerignore
-compose.yaml
+docker-compose.yaml
 
 # Docs
 TESTING.md
