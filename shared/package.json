@@ -1,9 +1,12 @@
 {
-  "name": "shared",
+  "name": "@pop-choice/shared",
   "version": "1.0.0",
   "description": "",
   "type": "module",
   "main": "index.js",
+  "exports": {
+    "./*": "./*.ts"
+  },
   "scripts": {
     "test": "vitest",
     "test:run": "vitest run"

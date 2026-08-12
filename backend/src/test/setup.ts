@@ -13,9 +13,9 @@ import {
   TEST_BASE_URL,
 } from "./testConst.js";
 import { TMDB_URL } from "../const.js";
-import { VECTOR_DB_MATCH_COUNT, VECTOR_DB_THRESHOLD } from "@shared/const.js";
+import { VECTOR_DB_MATCH_COUNT, VECTOR_DB_THRESHOLD } from "@pop-choice/shared/const";
 import { getAIModel } from "../lib/utils.js";
-import type { MovieFormData } from "@shared/type.js";
+import type { MovieFormData } from "@pop-choice/shared/type";
 
 // config.ts reads these the moment it is imported, and dotenv won't override what is
 // already set. Pinning them here keeps the suite off the real APIs and keeps the

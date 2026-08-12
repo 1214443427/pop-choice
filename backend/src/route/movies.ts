@@ -1,5 +1,9 @@
 import type { Request, Response } from "express";
-import { MovieResponseSchema, type MovieFormData, type MovieResponseData } from "@shared/type.js";
+import {
+  MovieResponseSchema,
+  type MovieFormData,
+  type MovieResponseData,
+} from "@pop-choice/shared/type";
 import { openai } from "../config.js";
 import { getAIModel, getInitialPrompts, getUserPrompt } from "../lib/utils.js";
 import { zodResponseFormat } from "openai/helpers/zod.js";

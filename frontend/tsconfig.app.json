@@ -7,10 +7,6 @@
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
-    "paths": {
-      "@shared/*": ["../shared/*"]
-      // "@backend/*": ["../backend/*"]
-    },
 
     "strict": true,
 

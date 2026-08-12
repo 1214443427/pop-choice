@@ -5,7 +5,7 @@ import Hero from "./assets/hero.png";
 
 import App from "./App";
 import { apiCalled, errorHandler } from "./test/setup";
-import type { MovieFormData } from "@shared/type";
+import type { MovieFormData } from "@pop-choice/shared/type";
 
 async function progressToPersonForm(user: UserEvent, person: number, time: string) {
   const peopleCountTextbox = screen.getByPlaceholderText(/how many people/i);

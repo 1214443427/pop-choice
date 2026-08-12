@@ -2,7 +2,7 @@ import { test, describe, expect } from "vitest";
 import { errorHandler, server } from "../test/setup";
 import { http, HttpResponse } from "msw";
 import { APIError, fetchMovies } from "./movies";
-import { MovieResponseSchema, type MovieFormData } from "@shared/type";
+import { MovieResponseSchema, type MovieFormData } from "@pop-choice/shared/type";
 
 const movieFormData: MovieFormData = {
   startData: {

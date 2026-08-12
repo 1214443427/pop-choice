@@ -5,8 +5,8 @@ import "./App.css";
 import Form from "./components/Form";
 import { StartFormSchema, type FormState } from "./type";
 import { APIError, fetchMovies } from "./api/movies";
-import { PersonFormSchema, type MovieFormData, type PersonFormData } from "@shared/type";
-import { clampMaxPeople } from "@shared/utils";
+import { PersonFormSchema, type MovieFormData, type PersonFormData } from "@pop-choice/shared/type";
+import { clampMaxPeople } from "@pop-choice/shared/utils";
 import { getZodErrorMessage, getZodErrorPath, validateData } from "./lib/utils";
 
 type QuestionStates = Extract<FormState, { phase: "question" }>;

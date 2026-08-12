@@ -3,7 +3,7 @@ import { afterAll, afterEach, beforeEach, vi } from "vitest";
 import { cleanup } from "@testing-library/react";
 import { setupServer } from "msw/node";
 import { http, HttpResponse } from "msw";
-import type { MovieFormData } from "@shared/type";
+import type { MovieFormData } from "@pop-choice/shared/type";
 // Clean up the DOM after each test
 afterEach(() => {
   cleanup();

@@ -1,4 +1,4 @@
-import type { MovieFormData } from "@shared/type.js";
+import type { MovieFormData } from "@pop-choice/shared/type";
 import { describe, it, expect } from "vitest";
 import { getInitialPrompts, getUserPrompt } from "./utils.js";
 

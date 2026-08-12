@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MovieResponseSchema, type MovieFormData } from "@shared/type.js";
+import { MovieResponseSchema, type MovieFormData } from "@pop-choice/shared/type";
 
 import { app } from "./app.js";
 import request from "supertest";

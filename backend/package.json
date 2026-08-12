@@ -19,7 +19,8 @@
     "express": "^5.2.1",
     "openai": "^6.49.0",
     "zod": "^4.4.3",
-    "tsx": "^4.23.1"
+    "tsx": "^4.23.1",
+    "@pop-choice/shared": "*"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",

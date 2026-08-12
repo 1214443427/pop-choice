@@ -3,7 +3,7 @@ import {
   type MovieFormData,
   type MovieResponseData,
   type PersonFormData,
-} from "@shared/type";
+} from "@pop-choice/shared/type";
 import type z from "zod";
 
 export type FormState =

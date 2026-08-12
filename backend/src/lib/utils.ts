@@ -1,6 +1,4 @@
-import { MovieFormSchema, type MovieFormData } from "@shared/type.js";
-import type { Request } from "express";
-import * as z from "zod";
+import { MovieFormSchema, type MovieFormData } from "@pop-choice/shared/type";
 
 export function getEmbedModel() {
   const embedModel = process.env.AI_EMBED_MODEL;

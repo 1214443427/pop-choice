@@ -1,4 +1,8 @@
-import { MovieResponseSchema, type MovieFormData, type MovieResponseData } from "@shared/type";
+import {
+  MovieResponseSchema,
+  type MovieFormData,
+  type MovieResponseData,
+} from "@pop-choice/shared/type";
 
 export class APIError extends Error {
   code: number;
