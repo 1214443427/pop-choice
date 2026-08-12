@@ -1,0 +1,22 @@
+{
+  "name": "pop-choice",
+  "version": "1.0.0",
+  "description": "AI driven movie recommendation app.",
+  "homepage": "https://github.com/1214443427/pop-choice#readme",
+  "bugs": {
+    "url": "https://github.com/1214443427/pop-choice/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/1214443427/pop-choice.git"
+  },
+  "type": "module",
+  "main": "./backend/index.ts",
+  "scripts": {
+    "seed": "npm --prefix backend run seed",
+    "test": "npm run test:backend && npm run test:frontend && npm run test:shared",
+    "test:backend": "npm --prefix backend test",
+    "test:frontend": "npm --prefix frontend test",
+    "test:shared": "npm --prefix shared test"
+  }
+}

@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "test": "npx vitest",
-    "start": "npx tsx src/index.ts"
+    "start": "npx tsx src/index.ts",
+    "seed": "tsx src/seedContent.ts"
   },
   "dependencies": {
     "@langchain/core": "^1.2.3",

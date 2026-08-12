@@ -14,9 +14,9 @@ export default defineConfig({
     setupFiles: ["./src/test/setup.ts"],
     environment: "jsdom",
   },
-  // server: {
-  //   fs: {
-  //     allow: [".."],
-  //   },
-  // },
+  server: {
+    proxy: {
+      "/api/movies": "http://localhost:3000",
+    },
+  },
 });

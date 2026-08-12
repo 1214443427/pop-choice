@@ -33,9 +33,9 @@ describe("fetchPoster", () => {
 });
 
 describe("createEmbeddingFromPrompt", () => {
-  it("The function should create an embedding with 1536 numbers", async () => {
+  it(`The function should create an embedding with ${EMBEDDING_DIMENSIONS} numbers`, async () => {
     const embedding = await createEmbeddingFromPrompt("Mock user prompt");
-    expect(embedding).toHaveLength(1536);
+    expect(embedding).toHaveLength(EMBEDDING_DIMENSIONS);
     expect(embedding.every((num) => typeof num === "number")).toBe(true);
   });
   it("The function should throw if an error occurs.", async () => {
