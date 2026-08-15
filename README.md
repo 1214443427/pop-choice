@@ -18,7 +18,6 @@ Then, the answers will be transformed into a vector embedding. The server will t
 
 <figure>
     <div style="display:flex; justify-content:space-evenly ; width:100vw">
-        <img style="width: 45%;" src="./public/result-1.png">
         <img style="width: 45%" src="./public/result-2.png">
     </div>
     <figcaption style="text-align:center">The movie recommended</figcaption>
