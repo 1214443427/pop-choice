@@ -3,16 +3,28 @@ import { fileURLToPath } from "url";
 import express from "express";
 import cors from "cors";
 import { moviesHandler } from "./route/movies.js";
+import { rateLimit } from "express-rate-limit";
+import { AIRateLimit } from "./config.js";
 
 const clientDist = path.join(import.meta.dirname, "..", "public");
 
 export const app = express();
 
+app.set("trust proxy", 1);
+
+const limiter = rateLimit({
+  limit: AIRateLimit,
+  windowMs: 60000,
+  message: "Too many requests, please try again later.",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 if (process.env.NODE_ENV !== "production") {
   app.use(cors({ origin: ["http://localhost:5173"], optionsSuccessStatus: 200 }));
 }
 
-app.post("/api/movies", express.json(), moviesHandler); //only apply .json middleware to the api routes.
+app.post("/api/movies", limiter, express.json(), moviesHandler); //only apply .json middleware to the api routes.
 
 // const clientDist = publicPath;
 app.use(express.static(clientDist));

@@ -19,3 +19,5 @@ export const supabase = createClient(url, privateKey);
 /** TMDB config **/
 const tmdbKey = process.env.TMDB_API;
 if (!tmdbKey) throw new Error(`Expected env var TMDB_API`);
+
+export const AIRateLimit = Number(process.env.RATELIMIT) || 10;

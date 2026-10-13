@@ -2,7 +2,7 @@ services:
   server:
     build:
       context: .
-    image: pop-choice
+    image: belorrelos/pop-choice:v1.1
     init: true
     ports:
       - "3000:3000"

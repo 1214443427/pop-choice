@@ -13,14 +13,15 @@
   "dependencies": {
     "@langchain/core": "^1.2.3",
     "@langchain/textsplitters": "^1.0.1",
+    "@pop-choice/shared": "*",
     "@supabase/supabase-js": "^2.110.8",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
     "openai": "^6.49.0",
-    "zod": "^4.4.3",
     "tsx": "^4.23.1",
-    "@pop-choice/shared": "*"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
